@@ -1,18 +1,34 @@
-#include <Arduino.h>
+#include <TinyGPS++.h>
+#include <SoftwareSerial.h>
 
-// put function declarations here:
-int myFunction(int, int);
+
+TinyGPSPlus gps;
+SoftwareSerial gpsSerial(16, 17);  // RX, TX - ajuste os pinos conforme necessário
 
 void setup() {
-  // put your setup code here, to run once:
-  int result = myFunction(2, 3);
+  Serial.begin(9600);
+  gpsSerial.begin(9600);
+  Serial.println("bom dia!");
 }
 
 void loop() {
-  // put your main code here, to run repeatedly:
-}
+  while (gpsSerial.available() > 0) {
+    if (gps.encode(gpsSerial.read())) {
+      if (gps.location.isValid()) {
+        float latitude = gps.location.lat();
+        float longitude = gps.location.lng();
+        String hora = String(gps.time.hour()) + ":" + String(gps.time.minute()) + ":" + String(gps.time.second());
+        
+        Serial.print("Latitude: ");
+        Serial.println(latitude, 6);
+        Serial.print("Longitude: ");
+        Serial.println(longitude, 6);
+        Serial.print("Hora: ");
+        Serial.println(hora);
 
-// put function definitions here:
-int myFunction(int x, int y) {
-  return x + y;
+        delay(1000);
+        // Aqui você pode publicar as coordenadas e a hora como desejar.
+      }
+    }
+  }
 }
